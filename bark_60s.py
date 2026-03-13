@@ -1,25 +1,30 @@
 import requests
 import os
+import time
 
 # ================= 配置区 =================
-# 如果在本地测试，直接填入你的 Key；如果用 GitHub Actions，建议使用环境变量
-BARK_KEY = os.getenv("BARK_KEY")
+BARK_KEY = os.getenv("BARK_KEY")  # 确保环境变量正确设置，或者硬编码密钥
 # ==========================================
 
 def push_to_bark():
-    # 60s 图片直连地址
-    img_url = "https://60s.viki.moe/v2/60s?encoding=image"
+    # 60s 图片直连地址，添加时间戳避免缓存
+    img_url = f"https://60s.viki.moe/v2/60s?encoding=image&timestamp={int(time.time())}"
     
     # 构造 Bark 推送接口
-    # 参数说明：自动保存通知、设置分组为“每日简报”、携带图片地址
     api_url = f"https://api.day.app/{BARK_KEY}/每日60秒看世界/点击查看大图"
     
+    # 推送参数
     params = {
         "image": img_url,
         "isArchive": 1,
         "group": "60s新闻"
     }
+
+    # 调试：打印请求 URL 和参数
+    print(f"请求的 URL: {api_url}")
+    print(f"请求的参数: {params}")
     
+    # 发送请求
     print("正在推送至 Bark...")
     response = requests.get(api_url, params=params)
     
@@ -27,6 +32,7 @@ def push_to_bark():
         print("推送成功！")
     else:
         print(f"推送失败，错误代码：{response.status_code}")
+        print(f"响应内容：{response.text}")  # 打印错误详情
 
 if __name__ == "__main__":
     push_to_bark()
